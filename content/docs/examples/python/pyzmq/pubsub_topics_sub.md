@@ -1,15 +1,26 @@
+---
+name: pubsub_topics_sub.py
+language: python
+library: pyzmq
+---
+
+```Python
 import signal
+import time
+import random
 import zmq
 
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 context = zmq.Context()
+socket = context.socket(zmq.PUB)
+socket.bind('tcp://*:5555')
 
-socket = context.socket(zmq.SUB)
-socket.connect('tcp://localhost:5555')
-socket.setsockopt(zmq.SUBSCRIBE, b'')
-
-while True:
-    message = socket.recv()
-    print(f'Received: {message}')
+for i in range(10):
+    topic = random.randrange(1000, 1005)
+    message = bytes(f'{topic}: Broadcasting message {i}', 'utf-8')
+    print(message)
+    socket.send(message)
+    time.sleep(1)
+```
